@@ -1,7 +1,7 @@
 FORMAT: 1A
 HOST: https://sandbox-api.youandpush.com/
 
-# API You 'n Push
+# You 'n Push API
 
 # URL
 
