@@ -638,46 +638,46 @@ You can query the following attributes :
 - `development`
 - `platform`  
 - `languages`  
+- `discriminatorKeysGroups`  
+- `productionCertificate`  
+- `sandboxCertificate`  
+- `gcmApiKey`  
+- `pushGateway`  
+- `developmentApplicationID`  
+- `productionApplicationID`  
+- `sharedSecret`  
+- `securityIdentifier`  
+- `token`  
   
 by adding at the end of the route all the fields you want to retrieve separated by a comma.  
-example : `?fields=updatedAt,name`
+example : `?fields=displayName,platform,development`
 
 + Response 200 (application/json)
 
         [
             {
-                "id": "u67keit4p73uq23o",
-                "createdAt": 1434960984938,
-                "invalidAt": null,
-                "updatedAt": "2013-05-22",
-                "name": "fr.sophiacom.YNPiPhoneClient",
-                "platform": "IOS",
-                "languages":
-                [
-                    {
-                        "id": "fr"
-                    }
-                ]
-            }, 
+                "id": "bj0nj6i7uindk6u5",
+                "displayName": "Windows phone ?",
+                "platform": "WIN_PHONE",
+                "development": false
+            },
             {
-                "id": "cv9546n12v6m6lm7",
-                "createdAt": 1434960984938,
-                "invalidAt": null,
-                "updatedAt": "2013-05-31",
-                "name": "fr.sophiacom.myApp",
+                "id": "ujl99ghvalgpllf9",
+                "displayName": "This is the Android one",
+                "platform": "ANDROID",
+                "development": false
+            },
+            {
+                "id": "vhqpteg7m52iuj8b",
+                "displayName": "Windows8 test app",
+                "platform": "WINDOWS",
+                "development": true
+            },
+            {
+                "id": "e9ahnumqnclkl33g",
+                "displayName": "My iOS Production application",
                 "platform": "IOS",
-                "languages":
-                [
-                    {
-                        "id": "ja"
-                    },
-                    {
-                        "id": "fr"
-                    },
-                    {
-                        "id": "en"
-                    }
-                ]       
+                "development": false
             }
         ]
 
@@ -692,17 +692,18 @@ example : `?fields=updatedAt,name`
 + Request (application/json)
 
         {
-            "name": "fr.sophiacom.myApp",
-            "platform": "IOS",
-            "languages":
-            [
+            "languages": [
                 {
-                    "id": "fr"
+                    "id": "fr",
                 },
                 {
-                    "id": "en"
+                    "id": "en",
                 }
-            ]       
+            ],
+            "platform": "IOS",
+            "name": "com.youandpush.brandnew",
+            "displayName": "This is a new iOS Application",
+            "development": false
         }
 
 + Response 201
@@ -712,26 +713,49 @@ A single Application object with all its details
 
 + Parameters
     + projectID (required, string, `3jjcmr4qbjn41v0g`) ... Project unique identifier
-    + applicationID (required, string, `cv9546n12v6m6lm7`) ... Application unique identifier
+    + applicationID (required, string, `lg1nbfk5ksgp68r6`) ... Application unique identifier
 
 ### Retrieve an Application [GET]
+
+If the **sharedSecret** is known, the request will return "***" to show that we know it.
+The **password** field in iOS certificates works the same.
 
 + Response 200 (application/json)
 
         {
-            "id": "u67keit4p73uq23o",
-            "type": "application",
-            "createdAt": 1434960984938,
-            "endValidityDate": null,
-            "updatedAt": 1434960984938,
-            "name": "fr.sophiacom.YNPiPhoneClient",
+            "id": "lg1nbfk5ksgp68r6",
+            "createdAt": 1438182659000,
+            "updatedAt": 1438182659000,
+            "invalidAt": null,
+            "displayName": "This is a new iOS Application",
             "platform": "IOS",
-            "languages":
-            [
+            "name": "com.youandpush.brandnew",
+            "development": false,
+            "languages": [
                 {
                     "id": "fr"
+                },
+                {
+                    "id": "en"
                 }
-            ]
+            ],
+            "discriminatorKeysGroups": {
+                "Std": "SHORT",
+                "Prefs": "SHORT"
+            },
+            "productionCertificate": null,
+            "sandboxCertificate": {
+                "fileName": "sandbox-certificate.p12",
+                "data": "<your certificate encoded in base64>",
+                "password": "***"
+            },
+            "gcmApiKey": null,
+            "pushGateway": null,
+            "developmentApplicationID": null,
+            "productionApplicationID": null,
+            "sharedSecret": "***",
+            "securityIdentifier": null,
+            "token": null
         }
 
 ### Modify an Application [PUT]
@@ -739,15 +763,23 @@ A single Application object with all its details
 + Request (application/json)
 
         {
-            "name": "fr.sophiacom.YNPiPhoneClient",
-            "platform": "IOS",
-            "availableLanguages":
-            [
+            "displayName": "Not that new...",
+            "name": "com.youandpush.notthatnewanymore",
+            "availableLanguages": [
                 {
-                    "id": "fr",
-                    "type": "language" 
+                    "id": "fr" 
                 }
-            ]
+            ],
+            "sandboxCertificate": {
+                "fileName": "another-sandbox-certificate.p12",
+                "data": "<your certificate encoded in base64>",
+                "password": "your password"
+            },
+            "discriminatorKeysGroups": {
+                "Std": "SHORT",
+                "Prefs": "SHORT",
+                "AnotherGroup": "LONG"
+            }
         }
 
 + Response 200
@@ -915,63 +947,6 @@ type can be : **BackEnd** or **Mobile**
 
 + Response 200
 
-
-# Group Discriminator Keys Group
-
-## Discriminator Keys [/v1/applications/{applicationID}/discriminatorKeysGroups]
-
-+ Parameters
-    + applicationID (required, string, `4c99542973314696`) ... Application unique identifier
-
-### Create a Discriminator Keys Group [POST]
-
-The **valueLength** attribute can be either **SHORT** or **LONG**
-
-+ Request (application/json)
-
-        {
-            "name": "my group",
-            "valueLength": SHORT
-        }
-        
-+ Response 201
-
-### List all Discriminator Keys Group [GET]
-
-+ Response 200 (application/json)
-
-        [
-            {
-                "name": "Std",
-                "valueLength": SHORT
-            },
-            {
-                "name": "Prefs",
-                "valueLength": SHORT
-            }
-        ]
-
-## Discriminator Keys [/v1/applications/{applicationID}/discriminatorKeysGroups/{discriminatorKeysGroupID}]
-
-+ Parameters
-    + applicationID (required, string, `4c99542973314696`) ... Application unique identifier
-    + discriminatorKeysGroupID (required, string, `fb5cd59392e3487e`) ... Discriminator Keys Group unique identifier
-    
-### Modify a Discriminator Keys Group [PUT]
-
-- Request (application/json)
-
-        {
-            "name": "another name",
-            "valueLength": "LONG"
-        }
-        
-- Response 200
-
-### Modify a Discriminator Keys Group [DELETE]
-
-- Response 200
-    
 
 # Group Single Notifications
 Notifications back end **You'n Push API**
@@ -2243,4 +2218,3 @@ example : `?fields=yearMonth,nbNotification,nbTransaction`
                 "nbTransaction": 0
             }
         ]
-
