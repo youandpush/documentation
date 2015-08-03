@@ -783,10 +783,6 @@ The **password** field in iOS certificates works the same.
         }
 
 + Response 200
-        
-### Remove an Application [DELETE]
-
-+ Response 200
 
 # Group Installations
 
